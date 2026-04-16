@@ -46,6 +46,13 @@
         "content": "Mantap",
         "category": "Tutorial",
         "author": "dadan",
-        "date": "2026-04-16"
+        "date": "2026-04-16",
+        "comments": [
+            {
+                "user": "dadan",
+                "text": "Bisa",
+                "date": "16/4/2026"
+            }
+        ]
     }
 ]
