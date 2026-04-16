@@ -5,6 +5,12 @@
         "content": "percobaan dan permulaan",
         "author": "admin",
         "date": "2026-04-16 18:48",
-        "comments": []
+        "comments": [
+            {
+                "user": "admin",
+                "comment": "okeh",
+                "date": "2026-04-16 18:49"
+            }
+        ]
     }
 ]
