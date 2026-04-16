@@ -6,5 +6,9 @@
     "guest_user": {
         "role": "member",
         "bio": "Halo dunia"
+    },
+    "admin": {
+        "role": "admin",
+        "bio": "pengurus"
     }
 }
