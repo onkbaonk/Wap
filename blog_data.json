@@ -22,6 +22,9 @@
         "content": "Semoga baik baik saja",
         "category": "Catatan",
         "author": "admin",
-        "date": "2026-04-16"
+        "date": "2026-04-16",
+        "reactions": {
+            "admin": "like"
+        }
     }
 ]
