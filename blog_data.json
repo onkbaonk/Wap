@@ -25,6 +25,13 @@
         "date": "2026-04-16",
         "reactions": {
             "admin": "like"
-        }
+        },
+        "comments": [
+            {
+                "user": "admin",
+                "text": "Okeh",
+                "date": "16/4/2026"
+            }
+        ]
     }
 ]
