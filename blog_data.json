@@ -22,23 +22,5 @@
                 "date": "16/4/2026"
             }
         ]
-    },
-    {
-        "id": 4,
-        "title": "tes cgi",
-        "content": "mencoba perombakan\nHasil nihil\nKumaha yeuh\nOkeh",
-        "author": "admin",
-        "date": "2026-04-16 21:48",
-        "comments": [
-            {
-                "user": "yayan",
-                "text": "Okeh",
-                "date": "18/4/2026"
-            }
-        ],
-        "reactions": {
-            "admin": "like"
-        },
-        "category": "Umum"
     }
 ]
