@@ -48,29 +48,5 @@
         "category": "Umum",
         "author": "admin",
         "date": "2026-04-19"
-    },
-    {
-        "id": 1776607094775,
-        "title": "Jdbhyc",
-        "content": " sus djs djd\nDjsjbd",
-        "category": "Umum",
-        "author": "admin",
-        "date": "2026-04-19",
-        "lastEdit": "2026-04-19T14:46:51.265Z",
-        "comments": [
-            {
-                "user": "admin",
-                "text": "Oeh",
-                "date": "19/4/2026"
-            },
-            {
-                "user": "admin",
-                "text": "Owalah",
-                "date": "19/4/2026"
-            }
-        ],
-        "reactions": {
-            "admin": "like"
-        }
     }
 ]
