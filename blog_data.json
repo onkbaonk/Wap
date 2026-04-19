@@ -40,5 +40,13 @@
             "admin": "like"
         },
         "category": "Umum"
+    },
+    {
+        "id": 1776599414398,
+        "title": "tes cgi",
+        "content": "mencoba perombakan\nHasil nihil\nKumaha yeuh\nOkeh",
+        "category": "Umum",
+        "author": "admin",
+        "date": "2026-04-19"
     }
 ]
