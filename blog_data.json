@@ -71,6 +71,9 @@
                 "text": "Oeh",
                 "date": "19/4/2026"
             }
-        ]
+        ],
+        "reactions": {
+            "admin": "like"
+        }
     }
 ]
