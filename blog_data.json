@@ -64,6 +64,13 @@
         "category": "Umum",
         "author": "admin",
         "date": "2026-04-19",
-        "lastEdit": "2026-04-19T14:46:51.265Z"
+        "lastEdit": "2026-04-19T14:46:51.265Z",
+        "comments": [
+            {
+                "user": "admin",
+                "text": "Oeh",
+                "date": "19/4/2026"
+            }
+        ]
     }
 ]
