@@ -63,7 +63,7 @@
     {
         "id": 4,
         "title": "tes cgi",
-        "content": "mencoba perombakan",
+        "content": "mencoba perombakan\nHasil nihil",
         "author": "admin",
         "date": "2026-04-16 21:48",
         "comments": [
@@ -75,6 +75,7 @@
         ],
         "reactions": {
             "admin": "like"
-        }
+        },
+        "category": "Umum"
     }
 ]
