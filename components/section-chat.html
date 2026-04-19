@@ -1,0 +1,11 @@
+<div class="glass p-4 rounded-2xl flex flex-col h-[500px]">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold italic">💬 Room Chat</h3>
+        <button onclick="clearAllChat()" class="text-[10px] text-red-500 bg-red-500/10 px-2 py-1 rounded hover:bg-red-500/20 transition-all">Hapus Semua</button>
+    </div>
+    <div id="chat-box" class="flex-1 overflow-y-auto mb-4 space-y-3 pr-2 text-[11px]"></div>
+    <div class="flex gap-2">
+        <input type="text" id="chatInput" placeholder="Ketik pesan..." class="flex-1 bg-slate-800/50 p-3 rounded-xl outline-none text-xs border border-white/5">
+        <button onclick="sendChat()" class="bg-blue-600 px-6 py-2 rounded-xl text-xs font-bold">Kirim</button>
+    </div>
+</div>

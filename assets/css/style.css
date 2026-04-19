@@ -1,0 +1,132 @@
+body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    font-family: sans-serif; }
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background-color: #0f172a; /* Warna background agar tidak transparan saat ditumpuk */
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+  
+}
+
+.flex.border-b {
+    position: sticky;
+    top: 60px; /* Jarak dari atas (di bawah header) */
+    z-index: 30;
+    background-color: #0f172a;
+    padding-bottom: 0.5rem;
+  
+}
+        
+html {
+    scroll-behavior: smooth;
+  
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  
+}
+
+button[onclick^="deletePost"] {
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+  
+}
+
+button[onclick^="handleReaction"] {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  
+}
+
+button[onclick^="handleReaction"]:active {
+    transform: scale(0.9);
+  
+}
+
+.glass {
+    background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+  
+}
+
+.modal {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  
+}
+
+.hidden {
+    display: none;
+  
+}
+        /* Animasi perpindahan tab */
+.tab-content {
+    animation: fadeIn 0.3s ease;
+  
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+      
+    }
+    
+    to {
+        opacity: 1;
+        transform: translateY(0);
+      
+    }
+  
+}
+        /* Custom scrollbar untuk chat */
+#chat-box::-webkit-scrollbar {
+    width: 4px; }
+
+#chat-box::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px; }
+
+        /* Membuat list komentar lebih smooth */
+#comment-list div {
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+  
+}
+        
+#comment-list div:hover {
+    border-left-color: #3b82f6; /* Warna biru saat di-hover */
+    background: rgba(255, 255, 255, 0.08);
+  
+}
+        
+        /* Scrollbar tipis untuk komentar */
+#comment-list::-webkit-scrollbar {
+    width: 3px;
+  
+}
+#comment-list::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 10px;
+  
+}
+#user-posts > div {
+    margin-bottom: 0.75rem;
+  
+}

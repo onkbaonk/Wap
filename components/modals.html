@@ -1,0 +1,45 @@
+<div id="authModal" class="modal p-4 hidden">
+    <div class="glass p-6 rounded-2xl w-full max-w-sm text-center">
+        <h2 class="text-xl font-bold mb-4">Masuk / Daftar</h2>
+        <input type="text" id="authUser" placeholder="Username" class="w-full bg-slate-800 p-2 rounded mb-4 outline-none border border-white/10">
+        <div class="flex gap-2">
+            <button onclick="closeModal('authModal')" class="flex-1 bg-slate-700 py-2 rounded-lg text-xs">Batal</button>
+            <button onclick="handleLoginRegister()" class="flex-1 bg-blue-600 py-2 rounded-lg text-xs font-bold">Lanjut</button>
+        </div>
+    </div>
+</div>
+
+<div id="postModal" class="modal p-4 hidden">
+    <div class="glass p-6 rounded-2xl w-full max-w-md">
+        <h2 class="text-lg font-bold mb-4 text-blue-400">📝 Tulis Postingan</h2>
+        <input type="text" id="postTitle" placeholder="Judul Artikel" class="w-full bg-slate-800 p-2 rounded mb-3 outline-none border border-white/10">
+        <select id="postCategory" class="w-full bg-slate-800 p-2 rounded mb-3 outline-none border border-white/10 text-xs text-slate-300">
+            <option value="Umum">📁 Pilih Kategori: Umum</option>
+            <option value="Teknologi">💻 Teknologi</option>
+            <option value="Catatan">📓 Catatan</option>
+            <option value="Tutorial">🛠️ Tutorial</option>
+            <option value="Curhat">☕ Curhat</option>
+        </select>
+        <textarea id="postContent" placeholder="Isi konten..." rows="5" class="w-full bg-slate-800 p-2 rounded mb-4 outline-none border border-white/10 text-xs"></textarea>
+        <div class="flex gap-2">
+            <button onclick="closeModal('postModal'); resetPostModal();" class="flex-1 bg-slate-700 py-2 rounded-lg text-xs">Batal</button>
+            <button onclick="submitPost()" id="btnSubmitPost" class="flex-1 bg-blue-600 py-2 rounded-lg text-xs font-bold">Terbitkan</button>
+        </div>
+    </div>
+</div>
+
+<div id="viewModal" class="modal p-4 hidden">
+    <div class="glass p-6 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <h2 id="viewTitle" class="text-xl font-bold mb-4 text-blue-400"></h2>
+        <p id="viewContent" class="text-sm opacity-80 leading-loose mb-6"></p>
+        <div class="border-t border-white/10 pt-4">
+            <h4 class="text-xs font-bold mb-3 italic">💬 Komentar</h4>
+            <div id="comment-list" class="space-y-3 mb-4 max-h-40 overflow-y-auto pr-2 text-[11px]"></div>
+            <div class="flex gap-2">
+                <input type="text" id="commentInput" placeholder="Tulis komentar..." class="flex-1 bg-slate-800 p-2 rounded-lg outline-none text-[10px] border border-white/5">
+                <button onclick="addComment()" class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold">Kirim</button>
+            </div>
+        </div>
+        <button onclick="closeModal('viewModal')" class="w-full bg-slate-700 py-2 rounded-lg text-xs mt-6">Tutup</button>
+    </div>
+</div>
