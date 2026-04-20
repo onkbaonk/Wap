@@ -1,5 +1,5 @@
 {
-    "onkbaonk": {
+    "admin": {
         "role": "admin",
         "bio": "Developer Termux"
     },
@@ -7,18 +7,5 @@
         "role": "member",
         "bio": "Halo dunia"
     },
-    "admin": {
-        "role": "admin",
-        "bio": "pengurus"
-    },
-    "dadan": {
-        "role": "member",
-        "bio": "User baru dari dashboard",
-        "joined": "2026-04-16T13:50:17.023Z"
-    },
-    "yayan": {
-        "role": "member",
-        "bio": "User baru dari dashboard",
-        "joined": "2026-04-16T15:38:48.197Z"
-    }
+
 }
