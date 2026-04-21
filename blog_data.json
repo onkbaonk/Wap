@@ -8,6 +8,13 @@
         "date": "2026-04-21",
         "reactions": {
             "admin": "like"
-        }
+        },
+        "comments": [
+            {
+                "user": "admin",
+                "text": "Mantap",
+                "date": "21/4/2026"
+            }
+        ]
     }
 ]
