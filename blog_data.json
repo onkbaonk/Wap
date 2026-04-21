@@ -63,6 +63,13 @@
         "content": "KBjzjs\nZnjznd",
         "category": "Umum",
         "author": "amin",
-        "date": "2026-04-21"
+        "date": "2026-04-21",
+        "comments": [
+            {
+                "user": "admin",
+                "text": "Testing",
+                "date": "21/4/2026"
+            }
+        ]
     }
 ]
