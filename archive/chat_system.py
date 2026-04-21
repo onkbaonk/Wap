@@ -8,7 +8,7 @@ from datetime import datetime
 
 print("Content-Type: application/json\n")
 
-TOKEN = "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"
+TOKEN = "token"
 REPO = "onkbaonk/Wap"
 FILE_PATH = "chat_room.json"
 

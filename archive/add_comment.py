@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # --- KONFIGURASI ---
-TOKEN = "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"
+TOKEN = "token"
 REPO = "onkbaonk/Wap"
 FILE_PATH = "blog_data.json"
 

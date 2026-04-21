@@ -32,7 +32,7 @@ async function handleLoginRegister() {
         if (!file.content[user]) {
             file.content[user] = { 
                 role: "member", 
-                bio: "User baru dari dashboard",
+                bio: "User baru dari index",
                 joined: new Date().toISOString() 
             };
             await updateGithubFile('users.json', file.content, file.sha, `Auto-Register: ${user}`);
