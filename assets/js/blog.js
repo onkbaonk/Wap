@@ -1,34 +1,50 @@
 let EDIT_POST_ID = null;
+
 async function refreshBlog() {
+    const feed = document.getElementById('blog-feed');
+    
+    // Tampilkan Skeleton saat loading
+    feed.innerHTML = `
+        <div class="glass p-5 rounded-2xl h-32 skeleton mb-4"></div>
+        <div class="glass p-5 rounded-2xl h-32 skeleton mb-4"></div>
+        <div class="glass p-5 rounded-2xl h-32 skeleton mb-4"></div>
+    `;
+
     if (CURRENT_USER === "guest") {
-        document.getElementById('blog-feed').innerHTML = "<div class='glass p-10 text-center rounded-2xl opacity-50 text-sm'>Silahkan login untuk akses database.</div>";
+        feed.innerHTML = "<div class='glass p-10 text-center rounded-2xl opacity-50 text-sm'>Silahkan login untuk akses database.</div>";
         return;
     }
     try {
         const posts = await getGithubFile('blog_data.json');
-        document.getElementById('blog-feed').innerHTML = posts.content.slice().reverse().map(p => {
-            const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeContent = p.content.replace(/\n/g, '<br>').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        // Setelah data dapat, skeleton otomatis tertimpa oleh konten asli
+        feed.innerHTML = posts.content.slice().reverse().map(p => {
+            // Gunakan sanitizeHTML untuk keamanan
+            const cleanTitle = sanitizeHTML(p.title);
+            const cleanContent = sanitizeHTML(p.content).replace(/\n/g, '<br>');
             
-            const likes = p.reactions ? Object.values(p.reactions).filter(v => v === 'like').length : 0;
-            const dislikes = p.reactions ? Object.values(p.reactions).filter(v => v === 'dislike').length : 0;
+            const isOwner = p.author === CURRENT_USER || CURRENT_USER === 'admin';
 
             return `
             <div class="glass p-5 rounded-2xl hover:border-blue-500/30 transition-all relative group">
-            <button onclick="prepareEdit(${p.id})" class="text-blue-500 opacity-40 hover:opacity-100 p-2 z-20">✏️</button>
-            <button onclick="deletePost(${p.id})" class="text-red-500 opacity-40 hover:opacity-100 p-2 z-20">🗑️</button>
-                <div class="cursor-pointer" onclick="viewPost('${safeTitle}', '${safeContent}', ${p.id})">
-                    <h3 class="font-bold text-blue-400 pr-8"># ${p.title}</h3>
-                    <p class="text-xs opacity-70 mt-2 leading-relaxed line-clamp-3">${p.content}</p>
+                ${isOwner ? `
+                    <div class="absolute top-4 right-4 flex gap-2 z-20">
+                        <button onclick="prepareEdit(${p.id})" class="text-blue-500 opacity-40 hover:opacity-100 p-2">✏️</button>
+                        <button onclick="deletePost(${p.id})" class="text-red-500 opacity-40 hover:opacity-100 p-2">🗑️</button>
+                    </div>
+                ` : ''}
+                <div class="cursor-pointer" onclick="viewPost('${cleanTitle.replace(/'/g, "\\'")}', '${cleanContent.replace(/'/g, "\\'")}', ${p.id})">
+                    <h3 class="font-bold text-blue-400 pr-16"># ${cleanTitle}</h3>
+                    <p class="text-xs opacity-70 mt-2 leading-relaxed line-clamp-3">${cleanContent}</p>
                 </div>
                 <div class="flex items-center gap-4 mt-4 pt-4 border-t border-white/5">
-                    <button onclick="handleReaction(${p.id}, 'like')" class="flex items-center gap-1 text-[10px] bg-white/5 px-2 py-1 rounded-full border border-white/5">👍 ${likes}</button>
-                    <button onclick="handleReaction(${p.id}, 'dislike')" class="flex items-center gap-1 text-[10px] bg-white/5 px-2 py-1 rounded-full border border-white/5">👎 ${dislikes}</button>
+                    <button onclick="handleReaction(${p.id}, 'like')" class="text-[10px] bg-white/5 px-2 py-1 rounded-full">👍 ${p.reactions ? Object.values(p.reactions).filter(v => v === 'like').length : 0}</button>
                     <div class="ml-auto opacity-40 text-[9px]">👤 ${p.author.toUpperCase()}</div>
                 </div>
             </div>`;
         }).join('');
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        feed.innerHTML = "<p class='text-center text-red-400'>Gagal memuat data.</p>";
+    }
 }
 async function submitPost() {
     const t = document.getElementById('postTitle').value;
@@ -37,9 +53,17 @@ async function submitPost() {
     
     if(!t || !c) return alert("Isi judul & konten!");
     
-    const btn = document.getElementById('btnSubmitPost');
-    btn.innerText = "Processing...";
+    const cleanTitle = t.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const cleanContent = c.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     
+    const btn = document.querySelector("#postModal button[onclick='submitPost()']");
+    const originalText = btn.innerText;
+    
+    // Beri feedback visual pada tombol
+    btn.innerText = "Mengirim...";
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+
     try {
         const f = await getGithubFile('blog_data.json');
         f.content.push({ 
@@ -53,9 +77,15 @@ async function submitPost() {
         
         await updateGithubFile('blog_data.json', f.content, f.sha, "New Post with Category");
         closeModal('postModal');
-        refreshBlog(); // Refresh feed
-    } catch(e) { alert("Gagal!"); }
-    btn.innerText = "Terbitkan";
+        await refreshBlog();
+    } catch (e) {
+        alert("Gagal mengirim!");
+    } finally {
+        // Kembalikan tombol ke normal
+        btn.innerText = originalText;
+        btn.disabled = false;
+        btn.style.opacity = "1";
+    }
 }
 async function prepareEdit(postId) {
     try {
@@ -117,6 +147,15 @@ async function submitEdit() {
     btn.innerText = "Terbitkan";
 }
 async function deletePost(postId) {
+    const file = await getGithubFile('blog_data.json');
+    const post = file.content.find(p => p.id === postId);
+    
+    // Cek apakah benar pemiliknya
+    if (post.author !== CURRENT_USER && CURRENT_USER !== 'admin') {
+        alert("Akses ditolak! Ini bukan postingan Anda.");
+        return;
+    }
+
     if (!confirm("Hapus postingan ini secara permanen?")) return;
 
     try {
@@ -250,4 +289,35 @@ async function addComment() {
         input.value = "";
         renderComments(postId);
     } catch (e) { alert("Gagal!"); }
+}
+function filterBlog() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const posts = document.querySelectorAll('#blog-feed > div'); // Mengambil semua kartu postingan
+
+    posts.forEach(post => {
+        // Cari teks judul di dalam kartu (biasanya tag h3)
+        const title = post.querySelector('h3').innerText.toLowerCase();
+        
+        if (title.includes(query)) {
+            post.style.display = "block"; // Tampilkan jika cocok
+        } else {
+            post.style.display = "none";  // Sembunyikan jika tidak cocok
+        }
+    });
+
+    // Tampilkan pesan jika tidak ada hasil
+    const existingNoResult = document.getElementById('no-search-result');
+    const visiblePosts = Array.from(posts).filter(p => p.style.display !== "none").length;
+
+    if (visiblePosts === 0) {
+        if (!existingNoResult) {
+            const msg = document.createElement('p');
+            msg.id = 'no-search-result';
+            msg.className = 'text-center opacity-40 text-xs py-10';
+            msg.innerText = "Postingan tidak ditemukan.";
+            document.getElementById('blog-feed').appendChild(msg);
+        }
+    } else {
+        if (existingNoResult) existingNoResult.remove();
+    }
 }

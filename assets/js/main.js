@@ -1,6 +1,30 @@
+function sanitizeHTML(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
+function toggleSearch() {
+    const container = document.getElementById('search-container');
+    const input = document.getElementById('searchInput');
+    
+    if (container.classList.contains('w-10')) {
+        // Buka
+        container.classList.replace('w-10', 'w-40');
+        input.classList.replace('w-0', 'w-full');
+        input.classList.add('ml-2');
+        input.focus();
+    } else {
+        // Tutup jika input kosong
+        if (input.value === "") {
+            container.classList.replace('w-40', 'w-10');
+            input.classList.replace('w-full', 'w-0');
+            input.classList.remove('ml-2');
+        }
+    }
+}
 async function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById('section-' + tabName).classList.remove('hidden');

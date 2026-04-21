@@ -2,14 +2,17 @@ async function refreshChat() {
     try {
         const chats = await getGithubFile('chat_room.json');
         document.getElementById('chat-box').innerHTML = chats.content.map((c, index) => {
-            const isMe = c.user === CURRENT_USER;
+            const isMe = c.user === CURRENT_USER || CURRENT_USER === 'admin';
+            // Bersihkan teks chat dari tag HTML
+            const cleanChat = sanitizeHTML(c.text);
+
             return `
-            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} mb-2 group">
-                <span class="text-[9px] mb-1 opacity-40 px-2">${isMe ? 'Anda' : '@'+c.user}</span>
+            <div class="flex flex-col ${c.user === CURRENT_USER ? 'items-end' : 'items-start'} mb-2 group">
+                <span class="text-[9px] mb-1 opacity-40 px-2">@${c.user}</span>
                 <div class="relative flex items-center gap-2">
                     ${isMe ? `<button onclick="deleteChatMessage(${index})" class="opacity-0 group-hover:opacity-100 text-[10px] text-red-400 transition-opacity">🗑️</button>` : ''}
-                    <div class="${isMe ? 'bg-blue-600' : 'bg-slate-800'} p-2 px-3 rounded-xl text-white text-[11px] max-w-[85%]">
-                        ${c.text}
+                    <div class="${c.user === CURRENT_USER ? 'bg-blue-600' : 'bg-slate-800'} p-2 px-3 rounded-xl text-white text-[11px] max-w-[85%]">
+                        ${cleanChat}
                     </div>
                 </div>
             </div>`;

@@ -130,3 +130,22 @@ button[onclick^="handleReaction"]:active {
     margin-bottom: 0.75rem;
   
 }
+#search-container {
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#searchInput {
+    transition: width 0.3s ease;
+}
+/* Efek Loading Berdenyut */
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 12px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

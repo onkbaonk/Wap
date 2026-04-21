@@ -3,7 +3,7 @@ import base64
 import json
 
 # --- KONFIGURASI ---
-TOKEN = "token"
+TOKEN = "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"
 REPO = "onkbaonk/Wap"
 FILE_PATH = "users.json"
 BRANCH = "main"
@@ -36,7 +36,7 @@ def update_github_data(new_data, message="Update database"):
 
 # --- UJI COBA ---
 data_user = {
-    "onkbaonk": {"role": "admin", "bio": "Developer Termux"},
+    "admin": {"role": "admin", "bio": "Developer Termux"},
     "guest_user": {"role": "member", "bio": "Halo dunia"}
 }
 
