@@ -1,9 +1,18 @@
+function getCurrentChatPath() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Hasilnya 01, 02, dst.
+    return `chats/chat_${year}_${month}.json`;
+}
+
 async function refreshChat() {
+    const chatBox = document.getElementById('chat-box');
+    const filePath = getCurrentChatPath();
+
     try {
-        const chats = await getGithubFile('chat_room.json');
-        document.getElementById('chat-box').innerHTML = chats.content.map((c, index) => {
+        const chats = await getGithubFile(filePath);
+        chatBox.innerHTML = chats.content.map((c, index) => {
             const isMe = c.user === CURRENT_USER || CURRENT_USER === 'admin';
-            // Bersihkan teks chat dari tag HTML
             const cleanChat = sanitizeHTML(c.text);
 
             return `
@@ -17,48 +26,47 @@ async function refreshChat() {
                 </div>
             </div>`;
         }).join('');
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        // Jika file bulan ini belum ada (misal baru ganti bulan), tampilkan pesan kosong
+        chatBox.innerHTML = "<p class='text-center opacity-30 text-[10px] py-10'>Belum ada percakapan di bulan ini.</p>";
+    }
 }
 
 // FUNGSI KIRIM CHAT
 async function sendChat() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
+    const filePath = getCurrentChatPath();
     
-    // Validasi: Jangan kirim jika kosong atau jika user adalah tamu
-    if (!text) return;
-    if (CURRENT_USER === "guest") {
-        alert("Silahkan login untuk ikut chatting!");
-        return;
-    }
+    if (!text || CURRENT_USER === "guest") return;
 
     try {
-        // 1. Ambil data chat terbaru dari GitHub
-        const file = await getGithubFile('chat_room.json');
-        
-        // 2. Tambahkan pesan baru ke array
-        file.content.push({ 
-            user: CURRENT_USER, 
-            text: text, 
-            time: new Date().toLocaleTimeString() 
-        });
+        let fileData;
+        try {
+            // Coba ambil file bulan ini
+            fileData = await getGithubFile(filePath);
+        } catch (e) {
+            // Jika error (file belum ada), buat struktur file baru
+            fileData = { content: [], sha: null };
+        }
 
-        // 3. Batasi hanya 50 pesan terakhir agar file tidak terlalu berat
-        const updatedContent = file.content.slice(-50);
+        const newMessage = {
+            user: CURRENT_USER,
+            text: text,
+            date: new Date().toISOString()
+        };
 
-        // 4. Update file di GitHub
-        await updateGithubFile('chat_room.json', updatedContent, file.sha, "Chat update");
+        fileData.content.push(newMessage);
+        const updatedContent = fileData.content.slice(-50); // Tetap batasi 50 pesan terakhir
 
-        // 5. Kosongkan input dan refresh tampilan chat
+        await updateGithubFile(filePath, updatedContent, fileData.sha, `Chat update ${filePath}`);
+
         input.value = "";
         await refreshChat();
-        
-        // Scroll otomatis ke bawah
-        const box = document.getElementById('chat-box');
-        box.scrollTop = box.scrollHeight;
+        chatBox.scrollTop = chatBox.scrollHeight;
     } catch (e) {
         console.error(e);
-        alert("Gagal kirim chat! Cek koneksi atau token GitHub kamu.");
+        alert("Gagal kirim chat!");
     }
 }
 async function deleteChatMessage(index) {
