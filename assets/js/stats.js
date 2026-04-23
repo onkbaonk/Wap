@@ -1,15 +1,36 @@
+// Fungsi pembantu untuk mendapatkan nama file bulan ini
+function getChatFileName() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    return `chats/chat_${year}_${month}.json`;
+}
+
+
 async function refreshStats() {
     try {
-        const posts = await getGithubFile('blog_data.json');
-        const chats = await getGithubFile('chat_room.json');
+        const fileNameChat = getChatFileName();
+        const posts = await getGithubFile('blog_index.json');
         const users = await getGithubFile('users.json');
+        
+        let chatCount = 0;
+        try {
+            const chats = await getGithubFile(fileNameChat);
+            chatCount = chats.content.length;
+        } catch (err) {
+            // Jika file belum ada, biarkan tetap 0
+            console.log("File chat bulan ini belum dibuat.");
+        }
+
         document.getElementById('db-status').innerHTML = `
             <p>🟢 Status: Connected</p>
             <p>👥 Users: ${Object.keys(users.content).length}</p>
             <p>📝 Posts: ${posts.content.length}</p>
-            <p>💬 Chats: ${chats.content.length}</p>
+            <p>💬 Chats (${fileNameChat.replace('.json', '')}): ${chatCount}</p>
         `;
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error(e); 
+    }
 }
 
 async function refreshProfile() {
@@ -22,26 +43,22 @@ async function refreshProfile() {
         return;
     }
 
-    // 1. Update UI Dasar
     document.getElementById('user-display-name').innerText = `@${CURRENT_USER}`;
     document.getElementById('user-initial').innerText = CURRENT_USER.charAt(0).toUpperCase();
 
     try {
-        // 2. Ambil Data Blog & Chat untuk Statistik
-        const [blogFile, chatFile] = await Promise.all([
-            getGithubFile('blog_data.json'),
-            getGithubFile('chat_room.json')
+        const fileNameChat = getChatFileName();
+        const [blogFile, chatFileResult] = await Promise.allSettled([
+            getGithubFile('blog_index.json'),
+            getGithubFile(fileNameChat)
         ]);
 
-        // 3. Filter data milik User ini
-        const myPosts = blogFile.content.filter(p => p.author === CURRENT_USER);
-        const myChatCount = chatFile.content.filter(c => c.user === CURRENT_USER).length;
+        const myPosts = blogFile.status === 'fulfilled' ? blogFile.value.content.filter(p => p.author === CURRENT_USER) : [];
+        const myChatCount = chatFileResult.status === 'fulfilled' ? chatFileResult.value.content.filter(c => c.user === CURRENT_USER).length : 0;
 
-        // 4. Tampilkan Angka Statistik
         document.getElementById('user-post-count').innerText = myPosts.length;
         document.getElementById('user-chat-count').innerText = myChatCount;
 
-        // 5. Tampilkan List Postingan Milik Sendiri
         const container = document.getElementById('user-posts');
         if (myPosts.length === 0) {
             container.innerHTML = "<p class='text-center opacity-30 py-10 text-xs italic'>Anda belum pernah membuat postingan.</p>";
@@ -59,7 +76,6 @@ async function refreshProfile() {
                 </div>
             `).join('');
         }
-
     } catch (e) {
         console.error("Gagal memuat profil:", e);
     }

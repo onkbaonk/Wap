@@ -18,7 +18,7 @@
 * **Frontend**: HTML5, Tailwind CSS, JavaScript (Vanilla ES6+)
 * **Backend/Database**: GitHub REST API & JSON Storage
 * **Environment**: Termux (Android)
-* **Icons & UI**: Emoji & Custom CSS Animations
+* **Server**: Python Built-in HTTP Server
 
 ## 📁 Struktur Folder
 
@@ -33,20 +33,34 @@
 └── users.json        # Database pengguna
 
 ```
-## ⚙️ Cara Instalasi (Local Development)
- 1. Clone repositori ini:
+## ⚙️ Instalasi & Persiapan (Termux)
+Aplikasi ini bersifat **Zero-Dependencies** (tidak membutuhkan pip install requests). Cukup gunakan Python bawaan Termux sebagai web server.
+ 1. **Clone repositori:**
    ```bash
    git clone [https://github.com/onkbaonk/Wap.git](https://github.com/onkbaonk/Wap.git)
+   cd Wap
    
    ```
- 2. Jalankan server lokal (misalnya menggunakan Python di Termux):
+ 2. **Update package & Install Python/Git:**
+   ```bash
+   pkg update && pkg upgrade
+   pkg install python git
+   
+   ```
+ 3. **Menjalankan Aplikasi:**
    ```bash
    python -m http.server 8080
    
    ```
- 3. Akses melalui browser di http://localhost:8080.
+   Akses melalui browser di: http://localhost:8080
 ## 🔑 Konfigurasi API
-Pastikan kamu telah mengatur GITHUB_TOKEN di file auth.js atau file konfigurasi terkait agar aplikasi memiliki izin untuk membaca dan menulis ke repositori ini.
+Pastikan kamu telah mengatur GITHUB_TOKEN di file assets/js/auth.js agar aplikasi memiliki izin untuk membaca dan menulis ke repositori GitHub ini.
+## 💡 Catatan Pengembangan
+ * **Tanpa Backend**: Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
+ * **CORS**: Selalu gunakan http.server. Membuka file .html secara langsung dapat menyebabkan fitur API terhambat oleh kebijakan keamanan browser.
 Dikembangkan dengan ❤️ di **Termux**.
 
-`![Dashboard](assets/img/screenshot.jpg)`
+`![Dashboard](assets/img/File2.jpg)`
+`![Dashboard](assets/img/File3.jpg)`
+`![Dashboard](assets/img/File4.jpg)`
+`![Dashboard](assets/img/File.jpg)`

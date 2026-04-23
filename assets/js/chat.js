@@ -1,15 +1,16 @@
-// 1. Fungsi penentu nama file
+// 1. Fungsi penentu nama file - SAMA UNTUK SEMUA FUNGSI
 function getChatFileName() {
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
+    // Pastikan folder 'chats/' sudah ada di repositori GitHub Anda
     return `chats/chat_${year}_${month}.json`;
 }
 
 // 2. Fungsi Refresh
 async function refreshChat() {
     const chatBox = document.getElementById('chat-box');
-    if (!chatBox) return; // Keamanan jika elemen tidak ada
+    if (!chatBox) return;
     
     const path = getChatFileName();
 
@@ -47,7 +48,7 @@ async function sendChat() {
     if (!text || CURRENT_USER === "guest") return;
 
     const originalText = text;
-    input.value = ""; // Kosongkan input biar terasa cepat
+    input.value = ""; 
 
     try {
         let fileData;
@@ -70,39 +71,38 @@ async function sendChat() {
         await refreshChat();
     } catch (e) {
         console.error(e);
-        input.value = originalText; // Kembalikan teks jika gagal
-        // Jangan tampilkan alert dulu, cek console saja
+        input.value = originalText;
     }
 }
 
-
+// --- PERBAIKAN DI SINI ---
 async function deleteChatMessage(index) {
     if (!confirm("Hapus pesan ini?")) return;
+    const path = getChatFileName(); // Gunakan file dinamis
 
     try {
-        const file = await getGithubFile('chat_room.json');
-        
-        // Hapus elemen berdasarkan index
+        const file = await getGithubFile(path);
         file.content.splice(index, 1);
 
-        await updateGithubFile('chat_room.json', file.content, file.sha, "Delete single chat message");
+        await updateGithubFile(path, file.content, file.sha, `Delete chat from ${path}`);
         await refreshChat();
     } catch (e) {
+        console.error(e);
         alert("Gagal menghapus pesan.");
     }
 }
 
 async function clearAllChat() {
-    if (!confirm("PERINGATAN: Hapus semua riwayat chat? Tindakan ini tidak bisa dibatalkan.")) return;
+    if (!confirm("PERINGATAN: Hapus semua riwayat chat bulan ini?")) return;
+    const path = getChatFileName(); // Gunakan file dinamis
 
     try {
-        const file = await getGithubFile('chat_room.json');
-        const emptyContent = []; // Array kosong
-
-        await updateGithubFile('chat_room.json', emptyContent, file.sha, "Clear all chat history");
-        alert("Riwayat chat dikosongkan!");
+        const file = await getGithubFile(path);
+        await updateGithubFile(path, [], file.sha, `Clear chat history: ${path}`);
+        alert("Riwayat chat bulan ini dikosongkan!");
         await refreshChat();
     } catch (e) {
+        console.error(e);
         alert("Gagal mengosongkan chat.");
     }
 }

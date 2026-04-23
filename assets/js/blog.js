@@ -278,3 +278,41 @@ function filterBlog() {
     });
 }
 
+const availableCategories = ["Semua", "Teknologi", "Catatan", "Tutorial", "Curhat", "Umum"];
+
+async function refreshCategories(filter = "Semua") {
+    const filterBar = document.getElementById('category-filter-bar');
+    if (!filterBar) return;
+
+    filterBar.innerHTML = availableCategories.map(cat => `
+        <button onclick="refreshCategories('${cat}')" 
+            class="px-4 py-1 rounded-full text-[10px] whitespace-nowrap border ${filter === cat ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/5 border-white/10 text-slate-400'}">
+            ${cat}
+        </button>
+    `).join('');
+
+    try {
+        // PERBAIKAN: Ganti blog_data.json ke blog_index.json
+        const res = await getGithubFile('blog_index.json');
+        let filtered = res.content;
+        
+        if (filter !== "Semua") {
+            filtered = res.content.filter(p => p.category === filter);
+        }
+
+        const container = document.getElementById('category-posts');
+        if (!filtered || filtered.length === 0) {
+            container.innerHTML = `<p class='text-center opacity-30 py-10 text-xs'>Tidak ada postingan di kategori ${filter}.</p>`;
+            return;
+        }
+
+        container.innerHTML = filtered.reverse().map(p => `
+            <div class="glass p-4 rounded-xl flex justify-between items-center group cursor-pointer mb-2" onclick="loadFullPost(${p.id})">
+                <div>
+                    <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded mb-1 inline-block">${p.category || 'Umum'}</span>
+                    <h4 class="font-bold text-sm text-slate-200"># ${sanitizeHTML(p.title)}</h4>
+                </div>
+                <div class="text-blue-500">→</div>
+            </div>`).join('');
+    } catch (e) { console.error(e); }
+}
