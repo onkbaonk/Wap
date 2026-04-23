@@ -49,4 +49,4 @@
 Pastikan kamu telah mengatur GITHUB_TOKEN di file auth.js atau file konfigurasi terkait agar aplikasi memiliki izin untuk membaca dan menulis ke repositori ini.
 Dikembangkan dengan ❤️ di **Termux**.
 
-`![Dashboard](assets/img/screenshot.jpg)`.
+`![Dashboard](assets/img/screenshot.jpg)`
