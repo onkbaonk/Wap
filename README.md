@@ -36,7 +36,7 @@
 ## ⚙️ Cara Instalasi (Local Development)
  1. Clone repositori ini:
    ```bash
-   git clone [https://github.com/onkbaonk/data.git](https://github.com/onkbaonk/data.git)
+   git clone [https://github.com/onkbaonk/Wap.git](https://github.com/onkbaonk/Wap.git)
    
    ```
  2. Jalankan server lokal (misalnya menggunakan Python di Termux):
