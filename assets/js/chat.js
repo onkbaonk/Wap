@@ -1,16 +1,20 @@
-function getCurrentChatPath() {
+// 1. Fungsi penentu nama file
+function getChatFileName() {
     const d = new Date();
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // Hasilnya 01, 02, dst.
+    const month = String(d.getMonth() + 1).padStart(2, '0');
     return `chats/chat_${year}_${month}.json`;
 }
 
+// 2. Fungsi Refresh
 async function refreshChat() {
     const chatBox = document.getElementById('chat-box');
-    const filePath = getCurrentChatPath();
+    if (!chatBox) return; // Keamanan jika elemen tidak ada
+    
+    const path = getChatFileName();
 
     try {
-        const chats = await getGithubFile(filePath);
+        const chats = await getGithubFile(path);
         chatBox.innerHTML = chats.content.map((c, index) => {
             const isMe = c.user === CURRENT_USER || CURRENT_USER === 'admin';
             const cleanChat = sanitizeHTML(c.text);
@@ -26,49 +30,52 @@ async function refreshChat() {
                 </div>
             </div>`;
         }).join('');
+        chatBox.scrollTop = chatBox.scrollHeight;
     } catch (e) { 
-        // Jika file bulan ini belum ada (misal baru ganti bulan), tampilkan pesan kosong
-        chatBox.innerHTML = "<p class='text-center opacity-30 text-[10px] py-10'>Belum ada percakapan di bulan ini.</p>";
+        chatBox.innerHTML = "<p class='text-center opacity-30 text-[10px] py-10'>Belum ada percakapan bulan ini.</p>";
     }
 }
 
-// FUNGSI KIRIM CHAT
+// 3. Fungsi Kirim
 async function sendChat() {
     const input = document.getElementById('chatInput');
+    if (!input) return;
+    
     const text = input.value.trim();
-    const filePath = getCurrentChatPath();
+    const path = getChatFileName();
     
     if (!text || CURRENT_USER === "guest") return;
+
+    const originalText = text;
+    input.value = ""; // Kosongkan input biar terasa cepat
 
     try {
         let fileData;
         try {
-            // Coba ambil file bulan ini
-            fileData = await getGithubFile(filePath);
+            fileData = await getGithubFile(path);
         } catch (e) {
-            // Jika error (file belum ada), buat struktur file baru
             fileData = { content: [], sha: null };
         }
 
         const newMessage = {
             user: CURRENT_USER,
-            text: text,
+            text: originalText,
             date: new Date().toISOString()
         };
 
         fileData.content.push(newMessage);
-        const updatedContent = fileData.content.slice(-50); // Tetap batasi 50 pesan terakhir
+        const updatedContent = fileData.content.slice(-50);
 
-        await updateGithubFile(filePath, updatedContent, fileData.sha, `Chat update ${filePath}`);
-
-        input.value = "";
+        await updateGithubFile(path, updatedContent, fileData.sha, `Chat update: ${path}`);
         await refreshChat();
-        chatBox.scrollTop = chatBox.scrollHeight;
     } catch (e) {
         console.error(e);
-        alert("Gagal kirim chat!");
+        input.value = originalText; // Kembalikan teks jika gagal
+        // Jangan tampilkan alert dulu, cek console saja
     }
 }
+
+
 async function deleteChatMessage(index) {
     if (!confirm("Hapus pesan ini?")) return;
 
