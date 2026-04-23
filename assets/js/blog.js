@@ -1,60 +1,80 @@
 let EDIT_POST_ID = null;
 
+// 1. REFRESH BLOG (Hanya mengambil Index Ringan)
 async function refreshBlog() {
     const feed = document.getElementById('blog-feed');
-    try {
-        const index = await getGithubFile('blog_index.json');
-        feed.innerHTML = index.content.slice().reverse().map(p => `
-            <div class="glass p-5 rounded-2xl mb-4 cursor-pointer hover:border-blue-500/50 transition-all" 
-                 onclick="loadFullPost(${p.id})">
-                <h3 class="text-sm font-bold text-blue-400">${sanitizeHTML(p.title)}</h3>
-                <div class="flex justify-between mt-2 text-[9px] opacity-40 uppercase tracking-widest">
-                    <span>Oleh: @${p.author}</span>
-                    <span>${p.date}</span>
-                </div>
-            </div>
-        `).join('');
-    } catch (e) {
-        feed.innerHTML = "<p class='text-center opacity-30'>Belum ada postingan.</p>";
+    feed.innerHTML = `
+        <div class="glass p-5 rounded-2xl h-32 skeleton mb-4"></div>
+        <div class="glass p-5 rounded-2xl h-32 skeleton mb-4"></div>
+    `;
+
+    if (CURRENT_USER === "guest") {
+        feed.innerHTML = "<div class='glass p-10 text-center rounded-2xl opacity-50 text-sm'>Silahkan login untuk akses database.</div>";
+        return;
     }
-}
-async function loadFullPost(postId) {
-    openModal('viewModal'); // Buka modal detail
-    const container = document.getElementById('viewDetailContent'); // Pastikan ID ini ada di modal kamu
-    container.innerHTML = "<p class='skeleton h-20 w-full'></p>"; // Tampilkan loading
 
     try {
-        const post = await getGithubFile(`posts/post_${postId}.json`);
-        container.innerHTML = `
-            <h2 class="text-xl font-bold mb-2">${sanitizeHTML(post.content.title)}</h2>
-            <p class="text-xs opacity-70 leading-relaxed">${sanitizeHTML(post.content.content).replace(/\n/g, '<br>')}</p>
-        `;
-        // Panggil fungsi refresh komentar di sini jika ada
-    } catch (e) {
-        container.innerHTML = "Gagal memuat detail postingan.";
+        // Mengambil blog_index.json, bukan blog_data.json yang berat
+        const index = await getGithubFile('blog_index.json');
+        
+        feed.innerHTML = index.content.slice().reverse().map(p => {
+            const cleanTitle = sanitizeHTML(p.title);
+            const isOwner = p.author === CURRENT_USER || CURRENT_USER === 'admin';
+
+            return `
+            <div class="glass p-5 rounded-2xl hover:border-blue-500/30 transition-all relative group mb-4">
+                ${isOwner ? `
+                    <div class="absolute top-4 right-4 flex gap-2 z-20">
+                        <button onclick="prepareEdit(${p.id})" class="text-blue-500 opacity-40 hover:opacity-100 p-2">✏️</button>
+                        <button onclick="deletePost(${p.id})" class="text-red-500 opacity-40 hover:opacity-100 p-2">🗑️</button>
+                    </div>
+                ` : ''}
+                <div class="cursor-pointer" onclick="loadFullPost(${p.id})">
+                    <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded mb-2 inline-block">${p.category || 'Umum'}</span>
+                    <h3 class="font-bold text-blue-400 pr-16"># ${cleanTitle}</h3>
+                    <div class="flex justify-between mt-4 pt-4 border-t border-white/5 opacity-40 text-[9px]">
+                        <span>👤 ${p.author.toUpperCase()}</span>
+                        <span>📅 ${p.date}</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    } catch (e) { 
+        feed.innerHTML = "<p class='text-center opacity-30 py-10'>Belum ada postingan. Mulailah menulis!</p>";
     }
 }
+
+// 2. SUBMIT POST (Simpan Detail ke Folder 'posts' & Update Index)
 async function submitPost() {
     const t = document.getElementById('postTitle').value.trim();
     const c = document.getElementById('postContent').value.trim();
-    if (!t || !c) return;
+    const cat = document.getElementById('postCategory').value;
+    
+    if(!t || !c) return alert("Isi judul & konten!");
+    
+    const btn = document.querySelector("#postModal button[onclick='submitPost()']");
+    const originalText = btn.innerText;
+    btn.innerText = "Mengirim...";
+    btn.disabled = true;
 
-    const postId = Date.now(); // Gunakan timestamp sebagai ID unik
-    const postPath = `posts/post_${postId}.json`;
+    const postId = Date.now();
+    const dateNow = new Date().toISOString().split('T')[0];
 
     try {
-        // 1. Simpan Detail Lengkap ke folder posts/
+        // A. Simpan file detail lengkap ke folder posts/
         const detailedData = {
             id: postId,
             title: t,
             content: c,
+            category: cat,
             author: CURRENT_USER,
-            date: new Date().toLocaleDateString(),
+            date: dateNow,
+            reactions: {},
             comments: []
         };
-        await updateGithubFile(postPath, detailedData, null, `Detail post ${postId}`);
+        await updateGithubFile(`posts/post_${postId}.json`, detailedData, null, `Create post ${postId}`);
 
-        // 2. Update Indeks (Katalog Ringkas)
+        // B. Update blog_index.json
         let indexFile;
         try {
             indexFile = await getGithubFile('blog_index.json');
@@ -62,205 +82,144 @@ async function submitPost() {
             indexFile = { content: [], sha: null };
         }
 
-        const summary = {
+        indexFile.content.push({
             id: postId,
             title: t,
             author: CURRENT_USER,
-            date: detailedData.date
-        };
+            category: cat,
+            date: dateNow
+        });
 
-        indexFile.content.push(summary);
-        await updateGithubFile('blog_index.json', indexFile.content, indexFile.sha, `Update Index`);
-
+        await updateGithubFile('blog_index.json', indexFile.content, indexFile.sha, "Update Blog Index");
+        
         closeModal('postModal');
+        resetPostModal();
         await refreshBlog();
     } catch (e) {
-        alert("Gagal memposting!");
+        alert("Gagal mengirim!");
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
+
+// 3. LOAD FULL POST (Membaca file shard saat diklik)
+async function loadFullPost(postId) {
+    openModal('viewModal');
+    const container = document.getElementById('viewContent');
+    const titleElem = document.getElementById('viewTitle');
+    const modal = document.getElementById('viewModal');
+    
+    container.innerHTML = "<div class='skeleton h-32 w-full'></div>";
+    titleElem.innerText = "Memuat...";
+    modal.setAttribute('data-current-post-id', postId);
+
+    try {
+        const res = await getGithubFile(`posts/post_${postId}.json`);
+        const post = res.content;
+
+        titleElem.innerText = post.title;
+        container.innerHTML = `
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-[9px] bg-blue-600 px-2 py-0.5 rounded text-white">${post.category}</span>
+                <span class="text-[9px] opacity-50">Oleh @${post.author}</span>
+            </div>
+            <p class="text-sm leading-relaxed text-slate-300">${sanitizeHTML(post.content).replace(/\n/g, '<br>')}</p>
+            <div class="mt-6 pt-4 border-t border-white/10 flex gap-4">
+                 <button onclick="handleReaction(${postId}, 'like')" class="text-xs bg-white/5 px-4 py-2 rounded-xl">👍 ${Object.values(post.reactions || {}).length}</button>
+            </div>
+        `;
+        renderComments(postId);
+    } catch (e) {
+        container.innerHTML = "Gagal memuat detail postingan.";
+    }
+}
+
+// 4. EDIT POST (Mengambil detail dari shard lalu update keduanya)
 async function prepareEdit(postId) {
     try {
-        const file = await getGithubFile('blog_data.json');
-        const post = file.content.find(p => p.id === postId);
-        
-        if (!post) return alert("Postingan tidak ditemukan!");
+        const res = await getGithubFile(`posts/post_${postId}.json`);
+        const post = res.content;
 
-        // Isi field di modal dengan data lama
         document.getElementById('postTitle').value = post.title;
         document.getElementById('postContent').value = post.content;
         document.getElementById('postCategory').value = post.category || "Umum";
         
-        // Ubah tampilan modal sedikit agar user tahu ini sedang Edit
         document.querySelector('#postModal h2').innerText = "✏️ Edit Postingan";
         document.getElementById('btnSubmitPost').innerText = "Simpan Perubahan";
-        
-        // Ganti fungsi onclick tombol terbitkan sementara
         document.getElementById('btnSubmitPost').onclick = submitEdit;
         
         EDIT_POST_ID = postId;
         openModal('postModal');
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) { alert("Gagal mengambil data postingan."); }
 }
+
 async function submitEdit() {
-    const t = document.getElementById('postTitle').value;
-    const c = document.getElementById('postContent').value;
+    const t = document.getElementById('postTitle').value.trim();
+    const c = document.getElementById('postContent').value.trim();
     const cat = document.getElementById('postCategory').value;
-    
-    if(!t || !c) return alert("Judul & konten tidak boleh kosong!");
     
     const btn = document.getElementById('btnSubmitPost');
     btn.innerText = "Saving...";
-    
-    try {
-        const f = await getGithubFile('blog_data.json');
-        const idx = f.content.findIndex(p => p.id === EDIT_POST_ID);
-        
-        if (idx !== -1) {
-            // Update data tanpa mengubah ID, Author, atau Tanggal asli
-            f.content[idx].title = t;
-            f.content[idx].content = c;
-            f.content[idx].category = cat;
-            // Opsional: tambahkan tag (edited) atau update tanggal edit
-            f.content[idx].lastEdit = new Date().toISOString(); 
-        }
 
-        await updateGithubFile('blog_data.json', f.content, f.sha, `Edit post ID: ${EDIT_POST_ID}`);
-        
-        // Kembalikan modal ke kondisi awal (untuk posting baru)
+    try {
+        // A. Update Shard Detail
+        const shard = await getGithubFile(`posts/post_${EDIT_POST_ID}.json`);
+        shard.content.title = t;
+        shard.content.content = c;
+        shard.content.category = cat;
+        await updateGithubFile(`posts/post_${EDIT_POST_ID}.json`, shard.content, shard.sha, `Edit Detail ${EDIT_POST_ID}`);
+
+        // B. Update Index
+        const index = await getGithubFile('blog_index.json');
+        const idx = index.content.findIndex(p => p.id === EDIT_POST_ID);
+        if (idx !== -1) {
+            index.content[idx].title = t;
+            index.content[idx].category = cat;
+        }
+        await updateGithubFile('blog_index.json', index.content, index.sha, `Update Index ${EDIT_POST_ID}`);
+
         resetPostModal();
         closeModal('postModal');
         refreshBlog();
-    } catch(e) {
-        alert("Gagal menyimpan perubahan!");
-    }
-    btn.innerText = "Terbitkan";
+    } catch(e) { alert("Gagal menyimpan!"); }
 }
-async function deletePost(postId) {
-    const file = await getGithubFile('blog_data.json');
-    const post = file.content.find(p => p.id === postId);
-    
-    // Cek apakah benar pemiliknya
-    if (post.author !== CURRENT_USER && CURRENT_USER !== 'admin') {
-        alert("Akses ditolak! Ini bukan postingan Anda.");
-        return;
-    }
 
+// 5. DELETE POST
+async function deletePost(postId) {
     if (!confirm("Hapus postingan ini secara permanen?")) return;
 
     try {
-        const file = await getGithubFile('blog_data.json');
+        // A. Hapus dari Index
+        const index = await getGithubFile('blog_index.json');
+        const updatedIndex = index.content.filter(p => p.id !== postId);
+        await updateGithubFile('blog_index.json', updatedIndex, index.sha, `Delete Index ${postId}`);
 
-        const updatedPosts = file.content.filter(post => post.id !== postId);
+        // Catatan: File shard di folder posts/ bisa dibiarkan atau dihapus manual via API jika perlu.
+        // Untuk saat ini, menghapusnya dari index sudah cukup untuk menyembunyikannya.
 
-        await updateGithubFile(
-            'blog_data.json',
-            updatedPosts,
-            file.sha,
-            `Delete post ID: ${postId}`
-        );
-
-        alert("Postingan berhasil dihapus!");
-
-        setTimeout(() => {
-            refreshBlog();
-        }, 500);
-
-    } catch (e) {
-        alert("Gagal menghapus postingan.");
-    }
-}
-function viewPost(title, content, postId) {
-    document.getElementById('viewTitle').innerText = title;
-    document.getElementById('viewContent').innerHTML = content;
-    document.getElementById('viewModal').setAttribute('data-current-post-id', postId);
-    renderComments(postId);
-    openModal('viewModal');
-}
-function resetPostModal() {
-    EDIT_POST_ID = null;
-    document.getElementById('postTitle').value = "";
-    document.getElementById('postContent').value = "";
-    document.querySelector('#postModal h2').innerText = "📝 Tulis Postingan";
-    document.getElementById('btnSubmitPost').innerText = "Terbitkan";
-    document.getElementById('btnSubmitPost').onclick = submitPost; // Kembalikan ke fungsi awal
-}
-const availableCategories = ["Semua", "Teknologi", "Catatan", "Tutorial", "Curhat", "Umum"];
-
-async function refreshCategories(filter = "Semua") {
-    // 1. Render Baris Tombol Filter
-    const filterBar = document.getElementById('category-filter-bar');
-    filterBar.innerHTML = availableCategories.map(cat => `
-        <button onclick="refreshCategories('${cat}')" 
-            class="px-4 py-1 rounded-full text-[10px] whitespace-nowrap border ${filter === cat ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/5 border-white/10 text-slate-400'}">
-            ${cat}
-        </button>
-    `).join('');
-
-    try {
-        const file = await getGithubFile('blog_data.json');
-        let filtered = file.content;
-        
-        // 2. Filter data
-        if (filter !== "Semua") {
-            filtered = file.content.filter(p => p.category === filter);
-        }
-
-        // 3. Render ke UI (Hanya Judul agar rapi)
-        const container = document.getElementById('category-posts');
-        if (filtered.length === 0) {
-            container.innerHTML = `<p class='text-center opacity-30 py-10 text-xs'>Tidak ada postingan di kategori ${filter}.</p>`;
-            return;
-        }
-
-        container.innerHTML = filtered.reverse().map(p => {
-            const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeContent = p.content.replace(/\n/g, '<br>').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            return `
-                <div class="glass p-4 rounded-xl flex justify-between items-center group cursor-pointer" onclick="viewPost('${safeTitle}', '${safeContent}', ${p.id})">
-                    <div>
-                        <span class="text-[8px] bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded mb-1 inline-block">${p.category || 'Umum'}</span>
-                        <h4 class="font-bold text-sm text-slate-200"># ${p.title}</h4>
-                    </div>
-                    <div class="text-blue-500">→</div>
-                </div>`;
-        }).join('');
-    } catch (e) { console.error(e); }
-}
-async function handleReaction(postId, type) {
-    try {
-        const file = await getGithubFile('blog_data.json');
-        const idx = file.content.findIndex(p => p.id === postId);
-        if (idx === -1) return;
-        if (!file.content[idx].reactions) file.content[idx].reactions = {};
-        
-        if (file.content[idx].reactions[CURRENT_USER] === type) {
-            delete file.content[idx].reactions[CURRENT_USER];
-        } else {
-            file.content[idx].reactions[CURRENT_USER] = type;
-        }
-        await updateGithubFile('blog_data.json', file.content, file.sha, `Reaction ${type}`);
+        alert("Postingan dihapus!");
         refreshBlog();
-    } catch (e) { console.error(e); }
+    } catch (e) { alert("Gagal menghapus."); }
 }
+
+// 6. KOMENTAR & REAKSI (Sekarang mengarah ke Shard masing-masing)
 async function renderComments(postId) {
     const list = document.getElementById('comment-list');
-    list.innerHTML = "<p class='text-[10px] opacity-30'>Loading...</p>";
     try {
-        const file = await getGithubFile('blog_data.json');
-        const post = file.content.find(p => p.id === postId);
+        const res = await getGithubFile(`posts/post_${postId}.json`);
+        const post = res.content;
         if (!post.comments || post.comments.length === 0) {
-            list.innerHTML = "<p class='text-[10px] opacity-30 italic'>Belum ada komentar.</p>";
+            list.innerHTML = "<p class='text-[10px] opacity-30 italic py-4 text-center'>Belum ada komentar.</p>";
             return;
         }
         list.innerHTML = post.comments.map(c => `
-            <div class="bg-white/5 p-2 rounded-lg border border-white/5 mb-2">
+            <div class="bg-white/5 p-3 rounded-xl border border-white/5 mb-2">
                 <div class="flex justify-between text-[9px] mb-1">
                     <span class="text-blue-400 font-bold">@${c.user}</span>
                     <span class="opacity-30">${c.date}</span>
                 </div>
-                <p class="text-[10px] opacity-80">${c.text}</p>
+                <p class="text-[10px] opacity-80 leading-relaxed">${sanitizeHTML(c.text)}</p>
             </div>
         `).join('');
     } catch (e) { list.innerHTML = "Error."; }
@@ -271,44 +230,51 @@ async function addComment() {
     const text = input.value.trim();
     const postId = parseInt(document.getElementById('viewModal').getAttribute('data-current-post-id'));
     if (!text || CURRENT_USER === "guest") return;
+
     try {
-        const file = await getGithubFile('blog_data.json');
-        const idx = file.content.findIndex(p => p.id === postId);
-        if (!file.content[idx].comments) file.content[idx].comments = [];
-        file.content[idx].comments.push({ user: CURRENT_USER, text: text, date: new Date().toLocaleDateString() });
-        await updateGithubFile('blog_data.json', file.content, file.sha, "New Comment");
+        const res = await getGithubFile(`posts/post_${postId}.json`);
+        const post = res.content;
+        if (!post.comments) post.comments = [];
+        post.comments.push({ user: CURRENT_USER, text: text, date: new Date().toLocaleDateString() });
+        
+        await updateGithubFile(`posts/post_${postId}.json`, post, res.sha, "Add Comment");
         input.value = "";
         renderComments(postId);
-    } catch (e) { alert("Gagal!"); }
+    } catch (e) { alert("Gagal komentar!"); }
 }
+
+async function handleReaction(postId, type) {
+    try {
+        const res = await getGithubFile(`posts/post_${postId}.json`);
+        const post = res.content;
+        if (!post.reactions) post.reactions = {};
+        
+        if (post.reactions[CURRENT_USER] === type) {
+            delete post.reactions[CURRENT_USER];
+        } else {
+            post.reactions[CURRENT_USER] = type;
+        }
+        await updateGithubFile(`posts/post_${postId}.json`, post, res.sha, `Reaction ${type}`);
+        loadFullPost(postId); // Refresh tampilan detail
+    } catch (e) { console.error(e); }
+}
+
+// 7. FUNGSI PENDUKUNG LAINNYA
+function resetPostModal() {
+    EDIT_POST_ID = null;
+    document.getElementById('postTitle').value = "";
+    document.getElementById('postContent').value = "";
+    document.querySelector('#postModal h2').innerText = "📝 Tulis Postingan";
+    document.getElementById('btnSubmitPost').innerText = "Terbitkan";
+    document.getElementById('btnSubmitPost').onclick = submitPost;
+}
+
 function filterBlog() {
     const query = document.getElementById('searchInput').value.toLowerCase();
-    const posts = document.querySelectorAll('#blog-feed > div'); // Mengambil semua kartu postingan
-
+    const posts = document.querySelectorAll('#blog-feed > div');
     posts.forEach(post => {
-        // Cari teks judul di dalam kartu (biasanya tag h3)
         const title = post.querySelector('h3').innerText.toLowerCase();
-        
-        if (title.includes(query)) {
-            post.style.display = "block"; // Tampilkan jika cocok
-        } else {
-            post.style.display = "none";  // Sembunyikan jika tidak cocok
-        }
+        post.style.display = title.includes(query) ? "block" : "none";
     });
-
-    // Tampilkan pesan jika tidak ada hasil
-    const existingNoResult = document.getElementById('no-search-result');
-    const visiblePosts = Array.from(posts).filter(p => p.style.display !== "none").length;
-
-    if (visiblePosts === 0) {
-        if (!existingNoResult) {
-            const msg = document.createElement('p');
-            msg.id = 'no-search-result';
-            msg.className = 'text-center opacity-40 text-xs py-10';
-            msg.innerText = "Postingan tidak ditemukan.";
-            document.getElementById('blog-feed').appendChild(msg);
-        }
-    } else {
-        if (existingNoResult) existingNoResult.remove();
-    }
 }
+
