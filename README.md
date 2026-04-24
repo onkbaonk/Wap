@@ -55,12 +55,21 @@ Aplikasi ini bersifat **Zero-Dependencies** (tidak membutuhkan pip install reque
    Akses melalui browser di: http://localhost:8080
 ## 🔑 Konfigurasi API
 Pastikan kamu telah mengatur GITHUB_TOKEN di file assets/js/auth.js agar aplikasi memiliki izin untuk membaca dan menulis ke repositori GitHub ini.
-## 💡 Catatan Pengembangan
- * **Tanpa Backend**: Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
- * **CORS**: Selalu gunakan http.server. Membuka file .html secara langsung dapat menyebabkan fitur API terhambat oleh kebijakan keamanan browser.
-Dikembangkan dengan ❤️ di **Termux**.
+### 💡 Catatan Pengembangan
 
-`![Dashboard](assets/img/File2.jpg)`
-`![Dashboard](assets/img/File3.jpg)`
-`![Dashboard](assets/img/File4.jpg)`
-`![Dashboard](assets/img/File.jpg)`
+* **Tanpa Backend:** Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
+* **CORS:** Selalu gunakan http.server. Membuka file .html secara langsung dapat menyebabkan fitur API terhambat oleh kebijakan keamanan browser. Dikembangkan dengan ❤️ di Termux.
+
+---
+
+### 📸 Screenshot Aplikasi
+
+<p align="center">
+  <img src="assets/img/File2.jpg" width="45%" />
+  <img src="assets/img/File3.jpg" width="45%" />
+</p>
+
+<p align="center">
+  <img src="assets/img/File4.jpg" width="45%" />
+  <img src="assets/img/File.jpg" width="45%" />
+</p>
