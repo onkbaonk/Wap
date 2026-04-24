@@ -3,7 +3,7 @@ import base64
 import os
 
 # --- KONFIGURASI ---
-TOKEN = "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"
+TOKEN = "token"
 REPO = "onkbaonk/Wap"
 FOLDER_DI_GITHUB = "assets"  # File akan disimpan di folder 'assets'
 
