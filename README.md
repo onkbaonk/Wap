@@ -54,7 +54,7 @@ Aplikasi ini bersifat **Zero-Dependencies** (tidak membutuhkan pip install reque
    ```
    Akses melalui browser di: http://localhost:8080
 ## 🔑 Konfigurasi API
-Pastikan kamu telah mengatur GITHUB_TOKEN di file assets/js/auth.js agar aplikasi memiliki izin untuk membaca dan menulis ke repositori GitHub ini.
+Pastikan kamu telah mengatur GITHUB_TOKEN di file assets/js/api.js agar aplikasi memiliki izin untuk membaca dan menulis ke repositori GitHub ini.
 ### 💡 Catatan Pengembangan
 
 * **Tanpa Backend:** Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
