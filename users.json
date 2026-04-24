@@ -6,5 +6,10 @@
     "guest_user": {
         "role": "member",
         "bio": "Halo dunia"
+    },
+    "maman": {
+        "role": "member",
+        "bio": "User baru dari index",
+        "joined": "2026-04-24T13:42:10.517Z"
     }
 }
