@@ -3,8 +3,8 @@ import base64
 import json
 
 # --- KONFIGURASI ---
-TOKEN = "GITHUB TOKEN"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "users.json"
 BRANCH = "main"
 

@@ -5,8 +5,8 @@ import json
 from datetime import datetime
 
 # KONFIGURASI
-TOKEN = "GITHUB TOKEN"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "blog_index.json"
 
 

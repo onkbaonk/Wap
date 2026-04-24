@@ -2,8 +2,8 @@ import requests
 import json
 
 # --- KONFIGURASI (Sama seperti sebelumnya) ---
-TOKEN = "token"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "users.json"
 
 def get_user_data():

@@ -3,8 +3,8 @@ import base64
 import json
 
 # --- KONFIGURASI ---
-TOKEN = "token"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "users.json"
 
 def register_user(username, role, bio):

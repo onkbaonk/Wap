@@ -64,6 +64,26 @@ Jika Anda melakukan *fork* atau *clone* proyek ini, Anda harus melakukan konfigu
    
    ```
  3. **Aktifkan Folder**: Pastikan folder chats/ dan posts/ tersedia di repositori Anda agar sistem *sharding* dapat menulis file baru.
+ 4. **Sebelum Menjalankan Aplikasi** Tes Dulu Python nya, Dengan memindahkan file di archive ke Polder Project
+   ```bash
+   #di polder archive
+   db_handler.py
+   login.py
+   blog_manager.py
+   
+   ```
+ Dan Tes Dengan 
+   ```bash
+   python db_handler.py
+   Python login.py
+   Python blog_manager.py
+   
+   ```
+ Kalau Sukses Berhasil Lancar, Baru Jalankan Aplikasinya
+   ```bash
+   python -m http.server 8080
+   
+   ```
 ## 💡 Catatan Pengembangan
  * **Tanpa Backend:** Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
  * **CORS:** Selalu gunakan http.server untuk menghindari pemblokiran kebijakan keamanan browser.

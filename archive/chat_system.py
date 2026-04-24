@@ -8,8 +8,8 @@ from datetime import datetime
 
 print("Content-Type: application/json\n")
 
-TOKEN = "token"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "chat_room.json"
 
 def sync_chat():

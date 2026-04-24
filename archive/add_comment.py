@@ -4,8 +4,8 @@ import json
 from datetime import datetime
 
 # --- KONFIGURASI ---
-TOKEN = "token"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FILE_PATH = "blog_index.json"
 
 def add_comment(post_id, user, text):

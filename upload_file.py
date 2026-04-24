@@ -3,8 +3,8 @@ import base64
 import os
 
 # --- KONFIGURASI ---
-TOKEN = "token"
-REPO = "onkbaonk/Wap"
+TOKEN = "GITHUB_TOKEN_ANDA"
+REPO = "USERNAME_GITHUB_ANDA/NAMA_REPO_ANDA"
 FOLDER_DI_GITHUB = "assets"  # File akan disimpan di folder 'assets'
 
 def upload_to_github(file_path):
