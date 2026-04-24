@@ -1,5 +1,5 @@
 // api.js
-const GITHUB_TOKEN = "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"; 
+const GITHUB_TOKEN = "github token API "; 
 const REPO_PATH = "onkbaonk/Wap";
 
 const utoa = (str) => btoa(unescape(encodeURIComponent(str)));

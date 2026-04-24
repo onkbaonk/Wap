@@ -12,7 +12,7 @@ print("Content-Type: application/json\n")
 # KONFIGURASI
 TOKEN = "token"
 REPO = "onkbaonk/Wap"
-FILE_PATH = "blog_data.json"
+FILE_PATH = "blog_index.json"
 
 def get_github_data():
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"

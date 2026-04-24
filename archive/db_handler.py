@@ -3,7 +3,7 @@ import base64
 import json
 
 # --- KONFIGURASI ---
-TOKEN = "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"
+TOKEN = "token"
 REPO = "onkbaonk/Wap"
 FILE_PATH = "users.json"
 BRANCH = "main"

@@ -6,7 +6,7 @@ from datetime import datetime
 # --- KONFIGURASI ---
 TOKEN = "token"
 REPO = "onkbaonk/Wap"
-FILE_PATH = "blog_data.json"
+FILE_PATH = "blog_index.json"
 
 def add_comment(post_id, user, text):
     url = f"https://api.github.com/repos/{REPO}/contents/{FILE_PATH}"
