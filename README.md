@@ -15,10 +15,10 @@
 
 ## 🛠️ Tech Stack
 
-* **Frontend**: HTML5, Tailwind CSS, JavaScript (Vanilla ES6+)
-* **Backend/Database**: GitHub REST API & JSON Storage
-* **Environment**: Termux (Android)
-* **Server**: Python Built-in HTTP Server
+* **Frontend**: HTML5, Tailwind CSS, JavaScript (Vanilla ES6+).
+* **Backend/Database**: GitHub REST API & JSON Storage.
+* **Environment**: Termux (Android).
+* **Server**: Python Built-in HTTP Server.
 
 ## 📁 Struktur Folder
 
@@ -34,7 +34,7 @@
 
 ```
 ## ⚙️ Instalasi & Persiapan (Termux)
-Aplikasi ini bersifat **Zero-Dependencies** (tidak membutuhkan pip install requests). Cukup gunakan Python bawaan Termux sebagai web server.
+Aplikasi ini bersifat **Zero-Dependencies**. Cukup gunakan Python bawaan Termux sebagai web server.
  1. **Clone repositori:**
    ```bash
    git clone [https://github.com/onkbaonk/Wap.git](https://github.com/onkbaonk/Wap.git)
@@ -52,24 +52,28 @@ Aplikasi ini bersifat **Zero-Dependencies** (tidak membutuhkan pip install reque
    python -m http.server 8080
    
    ```
-   Akses melalui browser di: http://localhost:8080
-## 🔑 Konfigurasi API
-Pastikan kamu telah mengatur GITHUB_TOKEN di file assets/js/api.js agar aplikasi memiliki izin untuk membaca dan menulis ke repositori GitHub ini.
-### 💡 Catatan Pengembangan
-
-* **Tanpa Backend:** Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
-* **CORS:** Selalu gunakan http.server. Membuka file .html secara langsung dapat menyebabkan fitur API terhambat oleh kebijakan keamanan browser. Dikembangkan dengan ❤️ di Termux.
-
----
-
+   Akses melalui browser di: http://localhost:8080.
+## 🔧 Panduan Setup (Untuk Pengguna Lain)
+Jika Anda melakukan *fork* atau *clone* proyek ini, Anda harus melakukan konfigurasi API agar fitur tulis (Chat/Post) berfungsi di repositori Anda sendiri:
+ 1. **Dapatkan GitHub Token**: Buat *Personal Access Token* (fine-grained) di pengaturan GitHub Anda dengan izin akses *Read & Write* pada isi repositori.
+ 2. **Konfigurasi API**: Buka file assets/js/api.js (atau file auth Anda) dan sesuaikan variabel berikut:
+   ```javascript
+   const GITHUB_TOKEN = "TOKEN_ANDA_DISINI";
+   const REPO_OWNER = "USERNAME_GITHUB_ANDA";
+   const REPO_NAME = "NAMA_REPO_ANDA";
+   
+   ```
+ 3. **Aktifkan Folder**: Pastikan folder chats/ dan posts/ tersedia di repositori Anda agar sistem *sharding* dapat menulis file baru.
+## 💡 Catatan Pengembangan
+ * **Tanpa Backend:** Seluruh logika API ditangani oleh JavaScript fetch() di sisi klien.
+ * **CORS:** Selalu gunakan http.server untuk menghindari pemblokiran kebijakan keamanan browser.
+ * **Mobile Ready:** Dikembangkan dengan ❤️ sepenuhnya menggunakan **Termux**.
 ### 📸 Screenshot Aplikasi
-
 <p align="center">
-  <img src="assets/img/File2.jpg" width="45%" />
-  <img src="assets/img/File3.jpg" width="45%" />
+<img src="assets/img/File2.jpg" width="45%" />
+<img src="assets/img/File3.jpg" width="45%" />
 </p>
-
 <p align="center">
-  <img src="assets/img/File4.jpg" width="45%" />
-  <img src="assets/img/File.jpg" width="45%" />
+<img src="assets/img/File4.jpg" width="45%" />
+<img src="assets/img/File.jpg" width="45%" />
 </p>
