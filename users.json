@@ -1,13 +1,16 @@
 {
     "admin": {
+        "password": "admin123",
         "role": "admin",
         "bio": "Developer Termux"
     },
     "guest_user": {
+        "password": "guest123",
         "role": "member",
         "bio": "Halo dunia"
     },
     "maman": {
+        "password": "maman123",
         "role": "member",
         "bio": "User baru dari index",
         "joined": "2026-04-24T13:42:10.517Z"

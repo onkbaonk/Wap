@@ -23,25 +23,39 @@ function updateAuthUI() {
 
 async function handleLoginRegister() {
     const userInput = document.getElementById('authUser');
+    const passInput = document.getElementById('authPass'); // Pastikan ID ini ada di modal Anda
     const user = userInput.value.trim().toLowerCase();
-    if (!user) return alert("Isi username!");
+    const pass = passInput.value.trim();
+
+    if (!user || !pass) return alert("Isi username dan password!");
 
     try {
         const file = await getGithubFile('users.json');
         
+        // JIKA USER BELUM ADA (Otomatis Registrasi)
         if (!file.content[user]) {
             file.content[user] = { 
+                password: pass, // Menyimpan password baru
                 role: "member", 
                 bio: "User baru dari index",
                 joined: new Date().toISOString() 
             };
             await updateGithubFile('users.json', file.content, file.sha, `Auto-Register: ${user}`);
+            alert("Akun baru berhasil dibuat!");
+        } 
+        // JIKA USER SUDAH ADA (Validasi Login)
+        else {
+            if (file.content[user].password !== pass) {
+                return alert("Password salah! Silakan coba lagi.");
+            }
         }
 
+        // Simpan sesi jika sukses
         localStorage.setItem("active_user", user);
         location.reload();
     } catch (e) {
-        alert("Gagal Login. Cek Token GitHub Anda.");
+        console.error(e);
+        alert("Gagal Login. Pastikan Token GitHub aktif dan file users.json tersedia.");
     }
 }
 
