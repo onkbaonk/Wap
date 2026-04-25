@@ -79,6 +79,7 @@ Jika Anda melakukan *fork* atau *clone* proyek ini, Anda harus melakukan konfigu
    
    
    ```
+ Untuk Login Isi Nama:admi password: admin123
  Kalau Sukses Berhasil Lancar, Baru Jalankan Aplikasinya
    ```bash
    python -m http.server 8080

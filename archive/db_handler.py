@@ -36,8 +36,8 @@ def update_github_data(new_data, message="Update database"):
 
 # --- UJI COBA ---
 data_user = {
-    "admin": {"role": "admin", "bio": "Developer Termux"},
-    "guest_user": {"role": "member", "bio": "Halo dunia"}
+    "admin": {"password": "admin123", "role": "admin", "bio": "Developer Termux"},
+    "guest_user": {"password": "guest123","role": "member", "bio": "Halo dunia"}
 }
 
 status = update_github_data(data_user)
