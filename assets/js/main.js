@@ -29,7 +29,7 @@ async function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.getElementById('section-' + tabName).classList.remove('hidden');
     
-    const tabs = ['blog', 'categories', 'chat', 'stats', 'profile'];
+    const tabs = ['blog', 'categories', 'chat', 'stats', 'profile', 'admin'];
     tabs.forEach(t => {
         const el = document.getElementById('tab-' + t);
         if (el) {
@@ -50,6 +50,19 @@ async function switchTab(tabName) {
     }
     if (tabName === 'profile') await refreshProfile();
     if (tabName === 'stats') await refreshStats();
+}
+
+async function initDashboard() {
+    // Selalu muat komponen admin panel agar sistem tab tidak error
+    const resp = await fetch('components/admin-panel.html');
+    const html = await resp.text();
+    const container = document.getElementById('admin-container');
+    
+    if (container) {
+        container.innerHTML = html;
+        document.getElementById('admin-section')?.classList.remove('hidden');
+        loadAdminPanel(); // Biarkan fungsi ini yang menentukan apa yang tampil
+    }
 }
 
 window.onload = () => {

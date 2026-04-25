@@ -21,6 +21,7 @@
             <div id="section-chat" class="tab-content hidden"></div>
             <div id="section-stats" class="tab-content hidden"></div>
             <div id="section-profile" class="tab-content hidden"></div>
+            <div id="section-admin" class="tab-content hidden"><div id="admin-container"></div></div>
         </main>
     </div>
 
@@ -53,6 +54,7 @@
         const scripts = [
             'assets/js/api.js',
             'assets/js/auth.js',
+            'assets/js/admin.js',
             'assets/js/main.js',
             'assets/js/blog.js',
             'assets/js/chat.js',
@@ -71,6 +73,11 @@
         // 3. JALANKAN INI SETELAH SEMUA SIAP
         if (typeof updateAuthUI === "function") {
             updateAuthUI(); 
+        }
+        
+        if (typeof initDashboard === "function") {
+          await initDashboard();
+          
         }
         
         // Jalankan tab default
