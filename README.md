@@ -47,7 +47,7 @@ Aplikasi ini bersifat **Zero-Dependencies**. Cukup gunakan Python bawaan Termux 
    pkg install python git
    
    ```
- 3. **install tequests**
+ 3. **install requests**
    ```bash
    pip install requests
    
@@ -71,7 +71,7 @@ Jika Anda melakukan *fork* atau *clone* proyek ini, Anda harus melakukan konfigu
  3. **Aktifkan Folder**: Pastikan folder chats/ dan posts/ tersedia di repositori Anda agar sistem *sharding* dapat menulis file baru.
  4. **Sebelum Menjalankan Aplikasi**
     Buka Polder .git cari file config, ganti repository Wap Dengan Repository Anda
-    Terus git push dulu Setelah selesai Tes Dulu Python nya, Dengan memindahkan file di archive ke Polder Project (Wap)
+    Terus git push dulu Setelah selesai Tes Dulu Python nya, Dengan memindahkan file di archive ke Polder Project (Wap), tapi INGAT masukan dulu github_token, agar nanti langsung bisa di jalankan.
    ```bash
    #di polder archive
    -> mv db_handler.py login.py ~/Wap/
