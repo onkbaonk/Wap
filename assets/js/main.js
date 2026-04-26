@@ -61,7 +61,12 @@ async function initDashboard() {
     if (container) {
         container.innerHTML = html;
         document.getElementById('admin-section')?.classList.remove('hidden');
-        loadAdminPanel(); // Biarkan fungsi ini yang menentukan apa yang tampil
+        await loadAdminPanel(); 
+        
+        // Pastikan audit log dimuat jika yang login admin
+        if (localStorage.getItem("active_user") === "admin") {
+            loadAuditLogs();
+        }
     }
 }
 

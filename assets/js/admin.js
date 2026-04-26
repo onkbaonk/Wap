@@ -5,21 +5,74 @@ async function loadAdminPanel() {
     const adminContent = document.getElementById('admin-content');
 
     if (currentUser !== "admin") {
-        // Jika bukan admin, tampilkan pesan error
         restrictedMsg?.classList.remove('hidden');
         adminContent?.classList.add('hidden');
         return;
     }
 
-    // Jika admin, tampilkan konten manajemen
     restrictedMsg?.classList.add('hidden');
     adminContent?.classList.remove('hidden');
 
     try {
         const users = await getGithubFile('users.json');
         renderUserManagement(users.content);
+        loadAuditLogs(); // Panggil fungsi muat log di sini
     } catch (e) {
         console.error("Gagal memuat data admin");
+    }
+}
+
+// FUNGSI BARU: Mencatat aktivitas ke logs/audit.json
+async function createAuditLog(action, target, details = "") {
+    const actor = localStorage.getItem("active_user");
+    const role = localStorage.getItem("user_role");
+    const path = 'logs/audit.json';
+
+    try {
+        let file;
+        try {
+            file = await getGithubFile(path);
+        } catch (e) {
+            // Jika file belum ada, buat baru
+            file = { content: [], sha: null };
+        }
+
+        const newEntry = {
+            timestamp: new Date().toISOString(),
+            actor: actor,
+            role: role,
+            action: action,
+            target: target,
+            details: details
+        };
+
+        file.content.unshift(newEntry);
+        const updatedContent = file.content.slice(0, 50); // Simpan 50 log terakhir
+        
+        await updateGithubFile(path, updatedContent, file.sha, `Audit: ${action} by ${actor}`);
+    } catch (e) {
+        console.error("Audit log error:", e);
+    }
+}
+
+// FUNGSI BARU: Menampilkan log di UI
+async function loadAuditLogs() {
+    try {
+        const file = await getGithubFile('logs/audit.json');
+        const container = document.getElementById('audit-log-container');
+        if (!container) return;
+
+        container.innerHTML = file.content.map(log => `
+            <div class="text-[10px] bg-black/20 p-2 rounded border-l-2 ${log.action.includes('DELETE') ? 'border-red-500' : 'border-blue-500'}">
+                <span class="text-slate-500">[${new Date(log.timestamp).toLocaleTimeString()}]</span>
+                <b class="text-white">${log.actor}</b> 
+                <span class="text-slate-400">${log.action}</span> -> 
+                <b class="text-blue-400">${log.target}</b>
+                ${log.details ? `<i class="text-slate-500 ml-1">(${log.details})</i>` : ''}
+            </div>
+        `).join('');
+    } catch (e) {
+        document.getElementById('audit-log-container').innerHTML = "<p class='text-[10px] opacity-30'>Belum ada log tersedia.</p>";
     }
 }
 
@@ -62,36 +115,37 @@ function renderUserManagement(users) {
 
 async function changeUserRole(targetUser, newRole) {
     if (localStorage.getItem("active_user") !== "admin") return alert("Akses dilarang!");
-
     try {
         const file = await getGithubFile('users.json');
         if (file.content[targetUser]) {
-            file.content[targetUser].role = newRole; 
-            await updateGithubFile('users.json', file.content, file.sha, `Admin: Change ${targetUser} role to ${newRole}`);
-            alert(`Berhasil! Role ${targetUser} telah diubah menjadi ${newRole}.`);
+            const oldRole = file.content[targetUser].role;
+            file.content[targetUser].role = newRole;
+            await updateGithubFile('users.json', file.content, file.sha, `Admin: Change ${targetUser} role`);
+            
+            // Catat ke Audit Log
+            await createAuditLog("CHANGE_ROLE", targetUser, `${oldRole} to ${newRole}`);
+            
+            alert(`Berhasil! Role ${targetUser} diperbarui.`);
             location.reload(); 
         }
-    } catch (e) {
-        console.error(e);
-        alert("Gagal mengubah role. Periksa koneksi atau izin Token GitHub Anda.");
-    }
+    } catch (e) { alert("Gagal mengubah role."); }
 }
 
-// Fungsi untuk menghapus akun user (Admin Only)
 async function deleteUserAccount(targetUser) {
     if (localStorage.getItem("active_user") !== "admin") return alert("Akses dilarang!");
-    if (!confirm(`Apakah Anda yakin ingin menghapus akun ${targetUser}?`)) return;
+    if (!confirm(`Hapus akun ${targetUser}?`)) return;
 
     try {
         const file = await getGithubFile('users.json');
-        
         if (file.content[targetUser]) {
-            delete file.content[targetUser]; // Menghapus key user dari objek
-            await updateGithubFile('users.json', file.content, file.sha, `Admin: Delete user ${targetUser}`);
-            alert(`Akun ${targetUser} telah dihapus.`);
+            delete file.content[targetUser];
+            await updateGithubFile('users.json', file.content, file.sha, `Admin: Delete ${targetUser}`);
+            
+            // Catat ke Audit Log
+            await createAuditLog("DELETE_USER", targetUser, "Permanent removal");
+            
+            alert(`Akun ${targetUser} dihapus.`);
             location.reload();
         }
-    } catch (e) {
-        alert("Gagal menghapus akun.");
-    }
+    } catch (e) { alert("Gagal menghapus user."); }
 }

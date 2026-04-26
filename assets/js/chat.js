@@ -84,20 +84,22 @@ async function deleteChatMessage(index) {
         const file = await getGithubFile(path);
         const targetMsg = file.content[index];
 
-        // Validasi Izin di Fungsi: Hanya pemilik, admin, atau moderator
         if (targetMsg.user !== CURRENT_USER && userRole !== 'admin' && userRole !== 'moderator') {
-            return alert("Anda tidak memiliki izin menghapus pesan ini!");
+            return alert("Izin ditolak.");
         }
 
-        if (!confirm("Hapus pesan ini?")) return;
+        if (!confirm("Hapus pesan?")) return;
 
         file.content.splice(index, 1);
-        await updateGithubFile(path, file.content, file.sha, `Delete chat by ${CURRENT_USER} (${userRole})`);
+        await updateGithubFile(path, file.content, file.sha, `Moderator Action: Delete message`);
+        
+        // CATAT KE AUDIT LOG
+        if (typeof createAuditLog === "function") {
+            await createAuditLog("DELETE_CHAT", targetMsg.user, `Msg: "${targetMsg.text.substring(0, 15)}..."`);
+        }
+
         await refreshChat();
-    } catch (e) {
-        console.error(e);
-        alert("Gagal menghapus pesan.");
-    }
+    } catch (e) { alert("Gagal hapus."); }
 }
 
 async function clearAllChat() {
