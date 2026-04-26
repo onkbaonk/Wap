@@ -25,7 +25,7 @@ users = get_user_data()
 
 if users:
     input_user = input("Masukkan Username: ")
-    input_password = input("Masukkan password:
+    input_password = input("Masukkan password: ")
     
     if input_user in users:
         print(f"✅ Selamat datang, {input_user}!")

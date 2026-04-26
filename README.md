@@ -47,7 +47,12 @@ Aplikasi ini bersifat **Zero-Dependencies**. Cukup gunakan Python bawaan Termux 
    pkg install python git
    
    ```
- 3. **Menjalankan Aplikasi:**
+ 3. **install tequests**
+   ```bash
+   pip install requests
+   
+   ```
+ 4. **Menjalankan Aplikasi:**
    ```bash
    python -m http.server 8080
    
@@ -79,7 +84,10 @@ Jika Anda melakukan *fork* atau *clone* proyek ini, Anda harus melakukan konfigu
    
    
    ```
- Untuk Login Isi Nama:admi password: admin123
+ Untuk Login Isi 
+ ```bash
+ Nama:admi password: admin123
+ ```
  Kalau Sukses Berhasil Lancar, Baru Jalankan Aplikasinya
    ```bash
    python -m http.server 8080
