@@ -3,37 +3,37 @@ function getChatFileName() {
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
-    // Pastikan folder 'chats/' sudah ada di repositori GitHub Anda
     return `chats/chat_${year}_${month}.json`;
 }
 
-// 2. Fungsi Refresh
 async function refreshChat() {
     const chatBox = document.getElementById('chat-box');
     if (!chatBox) return;
     
     const path = getChatFileName();
+    const userRole = localStorage.getItem("user_role"); // Ambil role dari storage
 
     try {
         const chats = await getGithubFile(path);
         chatBox.innerHTML = chats.content.map((c, index) => {
-            const isMe = c.user === CURRENT_USER || CURRENT_USER === 'admin';
+            // Logika Izin Tampilan: Milik sendiri ATAU Admin ATAU Moderator
+            const canDelete = (c.user === CURRENT_USER || userRole === 'admin' || userRole === 'moderator');
             const cleanChat = sanitizeHTML(c.text);
 
             return `
             <div class="flex flex-col ${c.user === CURRENT_USER ? 'items-end' : 'items-start'} mb-2 group">
                 <span class="text-[9px] mb-1 opacity-40 px-2">@${c.user}</span>
                 <div class="relative flex items-center gap-2">
-                    ${isMe ? `<button onclick="deleteChatMessage(${index})" class="opacity-0 group-hover:opacity-100 text-[10px] text-red-400 transition-opacity">🗑️</button>` : ''}
-                    <div class="${c.user === CURRENT_USER ? 'bg-blue-600' : 'bg-slate-800'} p-2 px-3 rounded-xl text-white text-[11px] max-w-[85%]">
+                    ${canDelete ? `<button onclick="deleteChatMessage(${index})" class="opacity-0 group-hover:opacity-100 text-[10px] text-red-400 transition-opacity">🗑️</button>` : ''}
+                    <div class="${c.user === CURRENT_USER ? 'bg-blue-600' : 'bg-slate-800'} p-2 px-3 rounded-2xl text-sm max-w-[200px]">
                         ${cleanChat}
                     </div>
                 </div>
             </div>`;
         }).join('');
         chatBox.scrollTop = chatBox.scrollHeight;
-    } catch (e) { 
-        chatBox.innerHTML = "<p class='text-center opacity-30 text-[10px] py-10'>Belum ada percakapan bulan ini.</p>";
+    } catch (e) {
+        chatBox.innerHTML = '<p class="text-center text-xs opacity-50">Mulai percakapan baru...</p>';
     }
 }
 
@@ -77,14 +77,22 @@ async function sendChat() {
 
 // --- PERBAIKAN DI SINI ---
 async function deleteChatMessage(index) {
-    if (!confirm("Hapus pesan ini?")) return;
-    const path = getChatFileName(); // Gunakan file dinamis
+    const userRole = localStorage.getItem("user_role");
+    const path = getChatFileName();
 
     try {
         const file = await getGithubFile(path);
-        file.content.splice(index, 1);
+        const targetMsg = file.content[index];
 
-        await updateGithubFile(path, file.content, file.sha, `Delete chat from ${path}`);
+        // Validasi Izin di Fungsi: Hanya pemilik, admin, atau moderator
+        if (targetMsg.user !== CURRENT_USER && userRole !== 'admin' && userRole !== 'moderator') {
+            return alert("Anda tidak memiliki izin menghapus pesan ini!");
+        }
+
+        if (!confirm("Hapus pesan ini?")) return;
+
+        file.content.splice(index, 1);
+        await updateGithubFile(path, file.content, file.sha, `Delete chat by ${CURRENT_USER} (${userRole})`);
         await refreshChat();
     } catch (e) {
         console.error(e);

@@ -5,7 +5,6 @@ function updateAuthUI() {
     const userBadge = document.getElementById('user-badge');
     const authBtn = document.getElementById('authActionBtn');
     
-    // Jika komponen header belum dimuat, hentikan dulu
     if (!authBtn || !userBadge) return;
 
     userBadge.innerText = `User: ${CURRENT_USER}`;
@@ -23,7 +22,7 @@ function updateAuthUI() {
 
 async function handleLoginRegister() {
     const userInput = document.getElementById('authUser');
-    const passInput = document.getElementById('authPass'); // Pastikan ID ini ada di modal Anda
+    const passInput = document.getElementById('authPass');
     const user = userInput.value.trim().toLowerCase();
     const pass = passInput.value.trim();
 
@@ -32,34 +31,34 @@ async function handleLoginRegister() {
     try {
         const file = await getGithubFile('users.json');
         
-        // JIKA USER BELUM ADA (Otomatis Registrasi)
         if (!file.content[user]) {
             file.content[user] = { 
-                password: pass, // Menyimpan password baru
+                password: pass,
                 role: "member", 
                 bio: "User baru dari index",
                 joined: new Date().toISOString() 
             };
             await updateGithubFile('users.json', file.content, file.sha, `Auto-Register: ${user}`);
             alert("Akun baru berhasil dibuat!");
-        } 
-        // JIKA USER SUDAH ADA (Validasi Login)
-        else {
+        } else {
             if (file.content[user].password !== pass) {
                 return alert("Password salah! Silakan coba lagi.");
             }
         }
 
-        // Simpan sesi jika sukses
+        // SIMPAN SESI & ROLE
         localStorage.setItem("active_user", user);
+        localStorage.setItem("user_role", file.content[user].role); // Menyimpan role untuk pengecekan fitur
+        
         location.reload();
     } catch (e) {
         console.error(e);
-        alert("Gagal Login. Pastikan Token GitHub aktif dan file users.json tersedia.");
+        alert("Gagal Login. Cek Token GitHub Anda.");
     }
 }
 
 function logout() {
     localStorage.removeItem("active_user");
+    localStorage.removeItem("user_role");
     location.reload();
 }

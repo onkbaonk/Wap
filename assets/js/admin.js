@@ -31,15 +31,28 @@ function renderUserManagement(users) {
     Object.keys(users).forEach(username => {
         if (username === 'admin') return;
         
+        const role = users[username].role;
+        // Memberikan warna berbeda untuk tiap role
+        const roleClass = role === 'admin' ? 'text-red-400' : (role === 'moderator' ? 'text-yellow-400' : 'text-blue-400');
+
         html += `
-            <div class="p-3 bg-slate-800 rounded mb-2 flex justify-between items-center">
+            <div class="p-3 bg-slate-800/50 border border-white/5 rounded-xl mb-3 flex justify-between items-center">
                 <div>
-                    <p class="font-bold">${username}</p>
-                    <p class="text-xs text-slate-400">Role: ${users[username].role}</p>
+                    <p class="font-bold text-sm">${username}</p>
+                    <p class="text-[10px] ${roleClass}">Role: ${role.toUpperCase()}</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="changeUserRole('${username}', 'member')" class="text-blue-400 text-xs">Set Member</button>
-                    <button onclick="deleteUserAccount('${username}')" class="text-red-400 text-xs">Hapus</button>
+                <div class="flex items-center gap-2">
+                    <select onchange="changeUserRole('${username}', this.value)" 
+                            class="bg-slate-700 text-[10px] p-1 rounded border-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">Ubah Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="member">Member</option>
+                    </select>
+                    <button onclick="deleteUserAccount('${username}')" 
+                            class="bg-red-500/10 text-red-500 p-1 px-2 rounded text-[10px] hover:bg-red-500 hover:text-white transition-all">
+                        Hapus
+                    </button>
                 </div>
             </div>
         `;
